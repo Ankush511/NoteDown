@@ -55,8 +55,58 @@ router.post(
     } 
     catch (error) {
       console.error(error.message);
-      res.status(500).send("Some error occured");
+      res.status(500).send("Internal Server Error.");
     }
+  }
+);
+
+
+// Authenticate a User using: POST "/api/auth/login" . Doesn't require login
+router.post(
+  "/login",
+  [
+    body("email", "Enter a valid email.").isEmail(),
+    body("password", "Password cannot be blank.").exists(),
+  ],
+  async (req, res) => {
+
+    // if there are errors return Bad Request, and the errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const {email, password} = req.body;
+
+    try {
+      // check if user exist or not
+      let user = await User.findOne({email});
+      if(!user){
+        return res.status(400).json({error: "Invalid Credentials."});
+      }
+
+      // check if password entered is correct or not
+      const comparePassword = await bycrypt.compare(password, user.password);
+      if(!comparePassword){
+        return res.status(400).json({error: "Invalid Credentials."});
+      }
+
+      const data = {
+        user:{
+          id: user.id
+        }
+      }
+      const authToken = jwt.sign(data, jwt_key);
+
+      res.json({authToken}) 
+
+
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send("Internal Server Error.");
+    }
+
+
   }
 );
 
