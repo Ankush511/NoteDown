@@ -26,6 +26,7 @@ const NoteState = (props) => {
     const addNote = async (title, description, tag) => {
         // API CALL
         const response = await fetch(`${host}/api/notes/addnote`, {
+            
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -33,7 +34,8 @@ const NoteState = (props) => {
             },
             body: JSON.stringify({ title, description, tag })
         });
-        
+
+
 
         const note = {
             "_id": "644675d06581e30030a58815",
