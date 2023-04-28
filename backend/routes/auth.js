@@ -17,10 +17,11 @@ router.post(
     body("password", "Password must be atleast 5 characters.").isLength({ min: 6 }),
   ],
   async (req, res) => {
+    let success = false;
     // if there are errors return Bad Request, and the errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({success, errors: errors.array() });
     }
 
     // check whether the user with same email exist or not
@@ -29,7 +30,7 @@ router.post(
       if (user) {
         return res
           .status(400)
-          .json({ error: "User with this email already exists." });
+          .json({success, error: "User with this email already exists." });
       }
 
       // creating secure hash password using bycryptjs - (password + salt)
@@ -48,8 +49,8 @@ router.post(
         },
       };
       const authToken = jwt.sign(data, jwt_key);
-
-      res.json({ authToken });
+      success = true;
+      res.json({ success, authToken });
     } catch (error) {
       console.error(error.message);
       res.status(500).send("Internal Server Error.");
@@ -65,10 +66,11 @@ router.post(
     body("password", "Password cannot be blank.").exists(),
   ],
   async (req, res) => {
+    let success = false;
     // if there are errors return Bad Request, and the errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ success, errors: errors.array() });
     }
 
     const { email, password } = req.body;
@@ -77,13 +79,13 @@ router.post(
       // check if user exist or not
       let user = await User.findOne({ email });
       if (!user) {
-        return res.status(400).json({ error: "Invalid Credentials." });
+        return res.status(400).json({ success,error: "Invalid Credentials." });
       }
 
       // check if password entered is correct or not
       const comparePassword = await bycrypt.compare(password, user.password);
       if (!comparePassword) {
-        return res.status(400).json({ error: "Invalid Credentials." });
+        return res.status(400).json({ success, error: "Invalid Credentials." });
       }
 
       const data = {
@@ -92,8 +94,9 @@ router.post(
         },
       };
       const authToken = jwt.sign(data, jwt_key);
+      success = true;
+      res.json({ success ,authToken });
 
-      res.json({ authToken });
     } catch (error) {
       console.error(error.message);
       res.status(500).send("Internal Server Error.");
@@ -103,6 +106,7 @@ router.post(
 
 // ROUTE 3: Get loggedin User details using: POST "/api/auth/getuser" . Requires Login.
 router.post("/getuser", fetchuser, async (req, res) => {
+  
   try {
     userId = req.user.id;
     const user = await User.findById(userId).select("-password");
