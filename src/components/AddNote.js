@@ -2,7 +2,7 @@ import React, {useContext, useState} from 'react'
 import noteContext from '../context/notes/noteContext'
 
 
-const AddNote = () => {
+const AddNote = (props) => {
 
     const context = useContext(noteContext);
     const {addNote} = context;
@@ -12,7 +12,8 @@ const AddNote = () => {
     const handleClick = (e) =>{
         e.preventDefault();
         addNote(note.title, note.description, note.tag);
-        setNote({title: "", description: "", tag: ""})
+        setNote({title: "", description: "", tag: ""});
+        props.showAlert("Note Added Successfully", "success");
     }
 
     const onChange = (e) =>{
@@ -20,8 +21,8 @@ const AddNote = () => {
     }
 
     return (
-        <div className="container my-3">
-            <h2>Add a Note</h2>
+        <div className="container my-3 col-md-5">
+            <h2 >Add a Note :</h2>
             <form className="my-3">
                 <div className="mb-3">
                     <label htmlFor="title" className="form-label">Title</label>

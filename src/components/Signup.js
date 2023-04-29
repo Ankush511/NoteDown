@@ -1,19 +1,20 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-const Signup = () => {
+
+const Signup = (props) => {
 
   const [credentials, setCredentials] = useState({ name: "", email: "", password: "", cpassword: "" })
   let navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const {name, email, password} = credentials;
+    const { name, email, password } = credentials;
     const response = await fetch('http://localhost:5001/api/auth/createuser', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({name, email, password })
+      body: JSON.stringify({ name, email, password })
     });
     const json = await response.json();
     console.log(json);
@@ -21,10 +22,12 @@ const Signup = () => {
     if (json.success) {
       // save the auth token and redirect
       localStorage.setItem('token', json.authtoken);
-      navigate('/login');
+      navigate('/');
+      props.showAlert("Account Created Successfully", "success")
+
     }
     else {
-      alert("Invalid Credentials");
+      props.showAlert("Invalid Credentials", "warning")
     }
   }
 
@@ -33,7 +36,8 @@ const Signup = () => {
   }
 
   return (
-    <div>
+    <div className='container col-md-4'>
+      <h2>Register Here :</h2>
        <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label htmlFor="name" className="form-label">Enter Name: </label>
@@ -52,11 +56,12 @@ const Signup = () => {
           <label htmlFor="cpassword" className="form-label">Confirm Password</label>
           <input type="password" className="form-control" id="cpassword" name="cpassword" onChange={onChange} minLength={6} required/>
         </div>
-        
+
         <button type="submit" className="btn btn-primary">Submit</button>
       </form> 
-      
+
     </div>
+    
   )
 }
 

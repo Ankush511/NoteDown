@@ -1,7 +1,7 @@
 import React,{useState} from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const Login = () => {
+const Login = (props) => {
 
   const [credentials, setCredentials] = useState({email: "", password: ""})
   let navigate = useNavigate();
@@ -21,11 +21,13 @@ const Login = () => {
 
     if(json.success){
       // save the auth token and redirect
-      localStorage.setItem('token', json.authtoken);
+      localStorage.setItem('token', json.authToken);
+      props.showAlert("Logged In Successfully", "success")
       navigate('/');
+
     }    
     else{
-      alert("Invalid Credentials");
+      props.showAlert("Invalid Credentials", "warning")
     }
   }
 
@@ -34,8 +36,9 @@ const Login = () => {
 }
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
+    <div className='container mt-2 col-md-4'>
+      <h2>Login to NoteDown :</h2>
+      <form onSubmit={handleSubmit} >
         <div className="mb-3">
           <label htmlFor="email" className="form-label">Email address</label>
           <input type="email" className="form-control" id="email" name="email" onChange={onChange} value={credentials.email} aria-describedby="emailHelp" />
